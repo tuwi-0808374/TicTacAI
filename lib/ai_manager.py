@@ -1,5 +1,7 @@
 import copy
 import json
+import random
+
 from google import genai
 from flask import *
 
@@ -139,9 +141,15 @@ class AIManager():
 
     def random_move(self, grid):
         """Randomly select a move from the given grid."""
+        potential_cells = []
         for i in range(5):
             for j in range(5):
                 if grid[i][j] == 0:
-                    grid[i][j] = 1
-                    return grid
-        return grid
+                    potential_cells.append((i, j))
+        if potential_cells:
+            random_cell = random.choice(potential_cells)
+            grid[random_cell[0]][random_cell[1]] = 1
+
+            return grid
+        else:
+            return None
