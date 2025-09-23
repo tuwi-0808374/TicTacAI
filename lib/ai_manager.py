@@ -1,10 +1,13 @@
 import json
+from google import genai
+from flask import *
 
 import ollama
 
 class AIManager():
     def __init__(self):
         self.max_retries = 10
+        self.api_type = 3
         pass
 
     def get_next_move(self, grid):
@@ -30,29 +33,63 @@ class AIManager():
         for attempt in range(self.max_retries):
             print(f"Attempt {attempt}")
             try:
-                # Send prompt to model
-                json_response = ollama.chat(
-                    model="llama3.1:8b",
-                    # llama3.1:8b-text-q4_0 bad
-                    # llama3.1:8b OK but slow 30 seconds
-                    # llama3.1:8b-instruct-q4_0 bad
-                    # mistral:7b-instruct-v0.3-q4_K_M
-                    # phi3:3.8b OK but slow lots of bad attempts
-                    # granite3.3:2b 3/10
-                    # granite3.3:8b bad
-                    # phi4-mini:3.8b bad
-                    # deepseek-r1:7b bad never ending
-                    # deepseek-r1:8b-llama-distill-q4_K_M bad
-                    # deepseek-r1:1.5b bad
-                    messages=[{"role": "user", "content": json_prompt}],
-                )
-                content = json_response["message"]["content"]
+                if self.api_type == 0:
+                    # Send prompt to model
+                    json_response = ollama.chat(
+                        model="llama3.1:8b",
+                        # llama3.1:8b-text-q4_0 bad
+                        # llama3.1:8b OK but slow 30 seconds
+                        # llama3.1:8b-instruct-q4_0 bad
+                        # mistral:7b-instruct-v0.3-q4_K_M
+                        # phi3:3.8b OK but slow lots of bad attempts
+                        # granite3.3:2b 3/10
+                        # granite3.3:8b bad
+                        # phi4-mini:3.8b bad
+                        # deepseek-r1:7b bad never ending
+                        # deepseek-r1:8b-llama-distill-q4_K_M bad
+                        # deepseek-r1:1.5b bad
+                        messages=[{"role": "user", "content": json_prompt}],
+                    )
 
-                # Clean response (remove Markdown)
-                content = content.replace('```json', '').replace('```', '').strip()
+                    content = json_response["message"]["content"]
 
-                # Parse response
-                parsed_response = json.loads(content)
+                    # Clean response (remove Markdown)
+                    content = content.replace('```json', '').replace('```', '').strip()
+
+                    # Parse response
+                    parsed_response = json.loads(content)
+
+                elif self.api_type == 1:
+                    client = genai.Client()
+
+                    json_response = client.models.generate_content(
+                        model="gemini-2.5-flash-lite", contents= json_prompt
+                        # gemini-2.5-flash-lite very fast
+                        # gemini-2.5-flash slower but smart
+                    )
+
+                    print(json_response.text)
+                    content = json_response.text
+
+                    # Clean response (remove Markdown)
+                    # Markdown Cleaning: content.replace('```json', '').replace('```', '').strip()
+                    # is a way to handle the common case where LLMs wrap their JSON output
+                    # in Markdown code blocks.
+                    # This improves the chances of successful JSON parsing.
+
+                    content = content.replace('```json', '').replace('```', '').strip()
+
+                    # Attempts to parse the JSON response.
+                    parsed_response = json.loads(content)
+                else:
+                    content = """[
+                              [0, 0, 0, 0, 0],
+                              [0, 0, 1, 0, 0],
+                              [0, 0, 0, 1, 0],
+                              [0, 0, 1, 2, 1],
+                              [0, 0, 2, 0, 2]
+                                ]"""
+                    parsed_response = json.loads(content)
 
                 # Handle wrapped response (e.g., {"grid": [...]})
                 if isinstance(parsed_response, dict) and "grid" in parsed_response:
