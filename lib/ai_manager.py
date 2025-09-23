@@ -1,3 +1,4 @@
+import copy
 import json
 from google import genai
 from flask import *
@@ -82,13 +83,8 @@ class AIManager():
                     # Attempts to parse the JSON response.
                     parsed_response = json.loads(content)
                 else:
-                    content = """[
-                              [0, 0, 0, 0, 0],
-                              [0, 0, 1, 0, 0],
-                              [0, 0, 0, 1, 0],
-                              [0, 0, 1, 2, 1],
-                              [0, 0, 2, 0, 2]
-                                ]"""
+                    grid_copy = copy.deepcopy(grid)
+                    content = f"""{self.random_move(grid_copy)}"""
                     parsed_response = json.loads(content)
 
                 # Handle wrapped response (e.g., {"grid": [...]})
@@ -140,3 +136,12 @@ class AIManager():
                         return False
                     differences += 1
         return differences == 1
+
+    def random_move(self, grid):
+        """Randomly select a move from the given grid."""
+        for i in range(5):
+            for j in range(5):
+                if grid[i][j] == 0:
+                    grid[i][j] = 1
+                    return grid
+        return grid
