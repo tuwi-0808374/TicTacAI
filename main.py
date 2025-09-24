@@ -8,6 +8,10 @@ app = Flask(__name__)
 def home_page():
     return render_template('home.html')
 
+@app.route('/game')
+def game_page():
+    return render_template('game.html')
+
 @app.route('/api/get_next_move', methods=['POST'])
 def get_next_move():
     print(request)

@@ -1,6 +1,8 @@
 import copy
 import json
 import random
+import re  # Added for response parsing
+import time  # Added for delay between retries
 
 from google import genai
 from flask import *
@@ -10,7 +12,7 @@ import ollama
 class AIManager():
     def __init__(self):
         self.max_retries = 10
-        self.api_type = 3
+        self.api_type = 1
         pass
 
     def get_next_move(self, grid):
@@ -40,17 +42,6 @@ class AIManager():
                     # Send prompt to model
                     json_response = ollama.chat(
                         model="llama3.1:8b",
-                        # llama3.1:8b-text-q4_0 bad
-                        # llama3.1:8b OK but slow 30 seconds
-                        # llama3.1:8b-instruct-q4_0 bad
-                        # mistral:7b-instruct-v0.3-q4_K_M
-                        # phi3:3.8b OK but slow lots of bad attempts
-                        # granite3.3:2b 3/10
-                        # granite3.3:8b bad
-                        # phi4-mini:3.8b bad
-                        # deepseek-r1:7b bad never ending
-                        # deepseek-r1:8b-llama-distill-q4_K_M bad
-                        # deepseek-r1:1.5b bad
                         messages=[{"role": "user", "content": json_prompt}],
                     )
 
@@ -66,21 +57,21 @@ class AIManager():
                     client = genai.Client()
 
                     json_response = client.models.generate_content(
-                        model="gemini-2.5-flash-lite", contents= json_prompt
-                        # gemini-2.5-flash-lite very fast
-                        # gemini-2.5-flash slower but smart
+                        model="gemini-2.5-flash-lite", contents=json_prompt
                     )
 
                     print(json_response.text)
                     content = json_response.text
 
                     # Clean response (remove Markdown)
-                    # Markdown Cleaning: content.replace('```json', '').replace('```', '').strip()
-                    # is a way to handle the common case where LLMs wrap their JSON output
-                    # in Markdown code blocks.
-                    # This improves the chances of successful JSON parsing.
-
                     content = content.replace('```json', '').replace('```', '').strip()
+
+                    # Extract the first valid JSON array to handle multiple objects
+                    json_objects = re.findall(r'\[\[.*?\]\]', content)
+                    if json_objects:
+                        content = json_objects[0]
+                    else:
+                        raise ValueError(f"No valid JSON array found in response: {content}")
 
                     # Attempts to parse the JSON response.
                     parsed_response = json.loads(content)
@@ -106,12 +97,9 @@ class AIManager():
 
             except ollama.ResponseError as e:
                 raise RuntimeError(f"Failed to get response from model: {str(e)}")
-            except json.JSONDecodeError:
-                if attempt < self.max_retries - 1:
-                    continue
-                raise ValueError(f"Invalid JSON response from model after {self.max_retries} attempts: {content}")
             except ValueError as e:
                 if attempt < self.max_retries - 1:
+                    time.sleep(1)  # Wait 1 second before retrying
                     continue
                 raise ValueError(f"Model failed to produce valid grid after {self.max_retries} attempts: {str(e)}")
             except Exception as e:
@@ -149,7 +137,6 @@ class AIManager():
         if potential_cells:
             random_cell = random.choice(potential_cells)
             grid[random_cell[0]][random_cell[1]] = 1
-
             return grid
         else:
             return None

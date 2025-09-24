@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicTacAI - 5x5 Tic-Tac-Toe</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f0f0;
+        }
+
+        #game-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 60px);
+            gap: 5px;
+            margin: 20px auto;
+            width: fit-content;
+        }
+
+        .cell {
+            width: 60px;
+            height: 60px;
+            border: 2px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            background-color: #fff;
+        }
+
+        .cell[data-value="1"] {
+            background-color: #ffcccc; /* RRed AI (1) */
+        }
+
+        .cell[data-value="2"] {
+            background-color: #ccffcc; /* Green player (2) */
+        }
+
+        #reset {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        #status {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>TicTacAI</h1>
+    <div id="game-grid"></div>
+    <button id="reset">Nieuw spel</button>
+    <p id="status">Jouw beurt!</p>
+</body>
+</html>
+
+<script>
+const gridElement = document.getElementById('game-grid');
+const resetButton = document.getElementById('reset');
+const statusElement = document.getElementById('status');
+let grid = Array(5).fill().map(() => Array(5).fill(0));
+let gameState = 0;
+
+function renderGrid() {
+    gridElement.innerHTML = '';
+    for (let i = 0; i < 5; i++) {
+        for (let j = 0; j < 5; j++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            cell.dataset.value = grid[i][j];
+            cell.dataset.row = i;
+            cell.dataset.col = j;
+            cell.textContent = grid[i][j] === 0 ? '' : grid[i][j] === 1 ? 'X' : 'O';
+            cell.addEventListener('click', handleCellClick);
+            gridElement.appendChild(cell);
+        }
+    }
+}
+
+async function handleCellClick(event) {
+    const row = parseInt(event.target.dataset.row);
+    const col = parseInt(event.target.dataset.col);
+    if (gameState === 1) { // Wait for AI is done thinking
+        console.log('Wacht eff...');
+        return;
+    }
+    if (grid[row][col] !== 0) return; // Player can set only empty cells to O
+
+    grid[row][col] = 2;
+    renderGrid();
+    statusElement.textContent = 'AI denkt...';
+    gameState = 1;
+
+    // Fetch move of AI
+    try {
+        const response = await fetch(`/api/get_next_move`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(grid)
+        });
+        if (!response.ok) throw new Error('API-fout');
+        const newGrid = await response.json();
+        grid = newGrid;
+        renderGrid();
+        statusElement.textContent = 'Jouw beurt!';
+        gameState = 0;
+    } catch (error) {
+        statusElement.textContent = 'Fout: ' + error.message;
+    }
+}
+
+function resetGame() {
+    grid = Array(5).fill().map(() => Array(5).fill(0));
+    renderGrid();
+    statusElement.textContent = 'Jouw beurt!';
+}
+
+resetButton.addEventListener('click', resetGame);
+renderGrid();
+
+</script>
