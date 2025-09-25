@@ -1,17 +1,19 @@
 import copy
 import json
 import random
-import re  # Added for response parsing
-import time  # Added for delay between retries
+import re
+import time
 
 from google import genai
+from google.genai import types
 from flask import *
 
 import ollama
 
 class AIManager():
     def __init__(self):
-        self.max_retries = 10
+        self.max_retries = 50
+        self.timeout = 10
         self.api_type = 1
         pass
 
@@ -38,6 +40,8 @@ class AIManager():
         for attempt in range(self.max_retries):
             print(f"Attempt {attempt}")
             try:
+                start_time = time.time()
+
                 if self.api_type == 0:
                     # Send prompt to model
                     json_response = ollama.chat(
@@ -54,11 +58,17 @@ class AIManager():
                     parsed_response = json.loads(content)
 
                 elif self.api_type == 1:
-                    client = genai.Client()
+                    time_out = self.timeout * 1000
+                    client = genai.Client(http_options=types.HttpOptions(timeout=time_out)) # timeout is in milliseconds
 
                     json_response = client.models.generate_content(
                         model="gemini-2.5-flash-lite", contents=json_prompt
                     )
+
+                    elapsed_time = time.time() - start_time
+                    print(f"The response took: {elapsed_time} seconds.")
+                    if elapsed_time > self.timeout:
+                        raise TimeoutError(f"GenAI call timed out after {elapsed_time:.2f} seconds (limiet: {self.timeout}s)")
 
                     print(json_response.text)
                     content = json_response.text
@@ -95,11 +105,25 @@ class AIManager():
 
                 return new_grid
 
+            except TimeoutError as e:
+                print(f"Timeout op attempt {attempt}: {str(e)}")
+                if attempt < self.max_retries - 1:
+                    time.sleep(1)
+                    continue
+                raise RuntimeError(f"Model timed out after {self.max_retries} attempts")
+
+            except genai.errors.ServerError as e:
+                print(f"GenAI ServerError op attempt {attempt}: {str(e)}")
+                if attempt < self.max_retries - 1:
+                    time.sleep(1)
+                    continue
+                raise RuntimeError(f"GenAI server failed after {self.max_retries} attempts: {str(e)}")
+
             except ollama.ResponseError as e:
                 raise RuntimeError(f"Failed to get response from model: {str(e)}")
             except ValueError as e:
                 if attempt < self.max_retries - 1:
-                    time.sleep(1)  # Wait 1 second before retrying
+                    time.sleep(1)
                     continue
                 raise ValueError(f"Model failed to produce valid grid after {self.max_retries} attempts: {str(e)}")
             except Exception as e:
