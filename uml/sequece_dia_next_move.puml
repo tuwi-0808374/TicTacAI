@@ -1,0 +1,15 @@
+@startuml Sequence Diagram Next Move
+
+actor User
+participant "Frontend" as FE
+participant "Backend" as BE
+participant "AI (Ollama)" as AI
+
+User -> FE: Doet een zet
+FE -> BE: POST /get_next_move?model="llama3.1:8b" [2D Array]
+BE -> AI: Stuurt grid naar AI (JSON prompt met spelregels, model="llama3.1:8b")
+AI --> BE: Retourneert nieuwe grid - 2D Array [[0,0,0,0,0],[0,0,0,0,0]... etc.
+BE --> FE: Stuur nieuwe grid als JSON
+FE --> User: Toon bijgewerkte spelbord
+
+@enduml
