@@ -1,4 +1,5 @@
 import copy
+import google.genai.errors
 import json
 import random
 import re
@@ -112,12 +113,12 @@ class AIManager():
                     continue
                 raise RuntimeError(f"Model timed out after {self.max_retries} attempts")
 
-            except genai.errors.ServerError as e:
-                print(f"GenAI ServerError op attempt {attempt}: {str(e)}")
+            except google.genai.errors.APIError as e:
+                print(f"GenAI API error op attempt {attempt}: {str(e)}")
                 if attempt < self.max_retries - 1:
                     time.sleep(1)
                     continue
-                raise RuntimeError(f"GenAI server failed after {self.max_retries} attempts: {str(e)}")
+                raise RuntimeError(f"GenAI API failed after {self.max_retries} attempts: {str(e)}")
 
             except ollama.ResponseError as e:
                 raise RuntimeError(f"Failed to get response from model: {str(e)}")
