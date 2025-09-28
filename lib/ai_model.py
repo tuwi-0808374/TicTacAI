@@ -1,3 +1,4 @@
+import random
 from abc import ABC, abstractmethod
 
 
@@ -7,6 +8,15 @@ class AIModel(ABC):
     def get_next_move(self, grid, prompt, model, timeout, max_retries):
         """Return new grid and other results from the AI"""
         pass
+
+    def make_prompt(self, grid_json, prompt):
+        json_prompt = f"""
+                {prompt}
+                Current grid:
+                {grid_json}
+                """
+        print(json_prompt)
+        return json_prompt
 
     def is_valid_grid(self, grid):
         """Validate that grid is 5x5 and contains only 0, 1, or 2."""

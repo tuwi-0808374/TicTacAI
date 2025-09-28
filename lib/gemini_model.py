@@ -2,10 +2,10 @@ import json
 import re
 import time
 import google.genai.errors
+
 from google import genai
 from google.genai import types
 from flask import *
-
 from lib.ai_model import AIModel
 
 class GeminiModel(AIModel):
@@ -14,21 +14,14 @@ class GeminiModel(AIModel):
 
     def get_next_move(self, grid, prompt, model_name, timeout, max_retries):
         grid_json = json.dumps(grid)
-
-        json_prompt = f"""
-        {prompt}
-        Current grid:
-        {grid_json}
-        """
-        print(json_prompt)
+        json_prompt = self.make_prompt(grid_json, prompt)
 
         for attempt in range(max_retries):
             try:
                 start_time = time.time()
-
                 print(f"Attempt {attempt}")
-
                 time_out = timeout * 1000
+
                 client = genai.Client(http_options=types.HttpOptions(timeout=time_out))  # timeout is in milliseconds
 
                 json_response = client.models.generate_content(
