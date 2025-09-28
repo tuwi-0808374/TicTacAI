@@ -1,0 +1,45 @@
+from abc import ABC, abstractmethod
+
+
+class AIModel(ABC):
+    """Abstract product that represents an AI model api"""
+    @abstractmethod
+    def get_next_move(self, grid, prompt, model, timeout, max_retries):
+        """Return new grid and other results from the AI"""
+        pass
+
+    def is_valid_grid(self, grid):
+        """Validate that grid is 5x5 and contains only 0, 1, or 2."""
+        if not isinstance(grid, list) or len(grid) != 5:
+            return False
+        for row in grid:
+            if not isinstance(row, list) or len(row) != 5:
+                return False
+            if not all(isinstance(x, int) and x in (0, 1, 2) for x in row):
+                return False
+        return True
+
+    def has_one_new_move(self, old_grid, new_grid):
+        """Check that new_grid has exactly one new '1' in a previously '0' cell."""
+        differences = 0
+        for i in range(5):
+            for j in range(5):
+                if old_grid[i][j] != new_grid[i][j]:
+                    if old_grid[i][j] != 0 or new_grid[i][j] != 1:
+                        return False
+                    differences += 1
+        return differences == 1
+
+    def random_move(self, grid):
+        """Randomly select a move from the given grid."""
+        potential_cells = []
+        for i in range(5):
+            for j in range(5):
+                if grid[i][j] == 0:
+                    potential_cells.append((i, j))
+        if potential_cells:
+            random_cell = random.choice(potential_cells)
+            grid[random_cell[0]][random_cell[1]] = 1
+            return grid
+        else:
+            return None
