@@ -6,18 +6,19 @@ from lib.ai_model import AIModel
 
 
 class OllamaModel(AIModel):
-    def __init__(self):
+    def __init__(self, timeout = 20, max_retries = 50):
+        super().__init__(timeout, max_retries)
         pass
 
-    def get_next_move(self, grid, prompt, model, timeout, max_retries):
+    def get_next_move(self, grid, prompt, model):
         grid_json = json.dumps(grid)
         json_prompt = self.make_prompt(grid_json, prompt)
 
-        for attempt in range(max_retries):
+        for attempt in range(self.max_retries):
             try:
                 start_time = time.time()
                 print(f"Attempt {attempt}")
-                time_out = timeout * 1000
+                time_out = self.timeout * 1000
 
                 # Send prompt to model
                 json_response = ollama.chat(
@@ -50,19 +51,19 @@ class OllamaModel(AIModel):
 
             except TimeoutError as e:
                 print(f"Timeout op attempt {attempt}: {str(e)}")
-                if attempt < max_retries - 1:
+                if attempt < self.max_retries - 1:
                     time.sleep(1)
                     continue
-                raise RuntimeError(f"Model timed out after {max_retries} attempts")
+                raise RuntimeError(f"Model timed out after {self.max_retries} attempts")
 
             except ollama.ResponseError as e:
                 raise RuntimeError(f"Failed to get response from model: {str(e)}")
 
             except ValueError as e:
-                if attempt < max_retries - 1:
+                if attempt < self.max_retries - 1:
                     time.sleep(1)
                     continue
-                raise ValueError(f"Model failed to produce valid grid after {max_retries} attempts: {str(e)}")
+                raise ValueError(f"Model failed to produce valid grid after {self.max_retries} attempts: {str(e)}")
             except Exception as e:
                 raise RuntimeError(f"Unexpected error: {str(e)}")
 

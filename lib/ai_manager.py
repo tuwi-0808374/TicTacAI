@@ -10,11 +10,11 @@ class AIManager():
         if model_name == "gemini-2.5-flash-lite":
             return GeminiModel()
         elif model_name == "llama3.1:8b":
-            return OllamaModel()
+            return OllamaModel(30, 50)
         else:
-            return RandomModel()
+            return RandomModel(1, 1)
 
-    def get_next_move(self, grid, prompt, model_name, timeout, max_retries):
+    def get_next_move(self, grid, prompt, model_name):
         model = self.create_model(model_name)
-        response = model.get_next_move(grid, prompt, model_name, timeout, max_retries)
+        response = model.get_next_move(grid, prompt, model_name)
         return response

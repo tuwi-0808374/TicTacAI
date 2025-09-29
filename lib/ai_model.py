@@ -4,8 +4,12 @@ from abc import ABC, abstractmethod
 
 class AIModel(ABC):
     """Abstract product that represents an AI model api"""
+    def __init__(self, timeout, max_retries):
+        self.timeout = timeout
+        self.max_retries = max_retries
+
     @abstractmethod
-    def get_next_move(self, grid, prompt, model, timeout, max_retries):
+    def get_next_move(self, grid, prompt, model):
         """Return new grid and other results from the AI"""
         pass
 
