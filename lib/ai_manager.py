@@ -10,7 +10,7 @@ class AIManager():
         if model_name == "gemini-2.5-flash-lite":
             return GeminiModel()
         elif model_name == "llama3.1:8b":
-            return OllamaModel(30, 50)
+            return OllamaModel(10, 50)
         else:
             return RandomModel()
 

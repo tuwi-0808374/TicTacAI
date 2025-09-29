@@ -32,7 +32,7 @@ class GeminiModel(AIModel):
                 elapsed_time = time.time() - start_time
                 print(f"The response took: {elapsed_time} seconds.")
                 if elapsed_time > self.timeout:
-                    raise TimeoutError(f"GenAI call timed out after {elapsed_time:.2f} seconds (limiet: {self.timeout}s)")
+                    raise TimeoutError(f"Gemini call timed out after {elapsed_time:.2f} seconds (limiet: {self.timeout}s)")
 
                 print(json_response.text)
                 content = json_response.text

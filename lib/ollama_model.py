@@ -1,12 +1,13 @@
 import json
 import time
 import ollama
+from ollama import Client
 
 from lib.ai_model import AIModel
 
 
 class OllamaModel(AIModel):
-    def __init__(self, timeout = 20, max_retries = 50):
+    def __init__(self, timeout = 30, max_retries = 50):
         super().__init__(timeout, max_retries)
         pass
 
@@ -14,17 +15,26 @@ class OllamaModel(AIModel):
         grid_json = json.dumps(grid)
         json_prompt = self.make_prompt(grid_json, prompt)
 
+        print(self.timeout)
+
         for attempt in range(self.max_retries):
             try:
                 start_time = time.time()
                 print(f"Attempt {attempt}")
                 time_out = self.timeout * 1000
 
+                client = Client(timeout = time_out)
+
                 # Send prompt to model
-                json_response = ollama.chat(
+                json_response = client.chat(
                     model=model,
                     messages=[{"role": "user", "content": json_prompt}],
                 )
+
+                elapsed_time = time.time() - start_time
+                print(f"The response took: {elapsed_time} seconds.")
+                if elapsed_time > self.timeout:
+                    raise TimeoutError(f"Ollama call timed out after {elapsed_time:.2f} seconds (limiet: {self.timeout}s)")
 
                 content = json_response["message"]["content"]
 
@@ -57,6 +67,9 @@ class OllamaModel(AIModel):
                 raise RuntimeError(f"Model timed out after {self.max_retries} attempts")
 
             except ollama.ResponseError as e:
+                raise RuntimeError(f"Failed to get response from model: {str(e)}")
+
+            except ollama.RequestError as e:
                 raise RuntimeError(f"Failed to get response from model: {str(e)}")
 
             except ValueError as e:
