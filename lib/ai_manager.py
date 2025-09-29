@@ -12,7 +12,7 @@ class AIManager():
         elif model_name == "llama3.1:8b":
             return OllamaModel(30, 50)
         else:
-            return RandomModel(1, 1)
+            return RandomModel()
 
     def get_next_move(self, grid, prompt, model_name):
         model = self.create_model(model_name)
