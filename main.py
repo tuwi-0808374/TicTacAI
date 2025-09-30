@@ -1,6 +1,7 @@
 from flask import *
 
 from lib.ai_manager import AIManager
+from data import *
 
 app = Flask(__name__)
 @app.route('/')
@@ -9,7 +10,7 @@ def home_page():
 
 @app.route('/game')
 def game_page():
-    return render_template('game.html')
+    return render_template('game.html', possible_models = model_data)
 
 @app.route('/api/get_next_move', methods=['POST'])
 def get_next_move():
@@ -29,9 +30,11 @@ def get_next_move():
                     - Use compact JSON: no indentation, no newlines, no extra spaces.
                     - You MUST place a new '1' in an empty '0' cell and MUST NOT repeat the input grid.
             """
-        # response = ai.get_next_move(request.json, prompt, "gemini-2.5-flash-lite")
-        # response = ai.get_next_move(request.json, prompt, "random")
-        response = ai.get_next_move(request.json, prompt, "llama3.1:8b")
+
+        grid = request.get_json()['grid']
+        model = request.get_json()['model']
+
+        response = ai.get_next_move(grid, prompt, model)
 
         return response, 200
     else:

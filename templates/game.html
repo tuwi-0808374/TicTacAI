@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TicTacAI - 5x5 Tic-Tac-Toe</title>
-    <link rel="stylesheet" href="style.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -33,7 +32,7 @@
         }
 
         .cell[data-value="1"] {
-            background-color: #ffcccc; /* RRed AI (1) */
+            background-color: #ffcccc; /* Red AI (1) */
         }
 
         .cell[data-value="2"] {
@@ -51,10 +50,65 @@
             font-size: 18px;
             margin-top: 10px;
         }
+
+        .dropdown {
+            position: relative;
+            width: 200px;
+            margin: 10px auto;
+        }
+
+        .dropdown-selected {
+            border: 2px solid #333;
+            padding: 10px;
+            background-color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dropdown-options {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            border: 2px solid #333;
+            background-color: #fff;
+            z-index: 10;
+            display: none;
+        }
+
+        .dropdown-option {
+            padding: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dropdown-option:hover {
+            background-color: #f0f0f0;
+        }
+
+        .dropdown-option img {
+            width: 20px;
+            height: 20px;
+        }
     </style>
 </head>
 <body>
     <h1>TicTacAI</h1>
+    <div id="custom-dropdown" class="dropdown">
+        <div class="dropdown-selected">Selecteer een model</div>
+        <div class="dropdown-options">
+            {% for model_key, model_info in possible_models.items() %}
+            <div class="dropdown-option" data-value="{{ model_key }}">
+                <img src="/static/images/icons/{{ model_info.icon }}" alt="{{ model_key }} icon">
+                {{ model_key }}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
     <div id="game-grid"></div>
     <button id="reset">Nieuw spel</button>
     <p id="status">Jouw beurt!</p>
@@ -62,67 +116,90 @@
 </html>
 
 <script>
-const gridElement = document.getElementById('game-grid');
-const resetButton = document.getElementById('reset');
-const statusElement = document.getElementById('status');
-let grid = Array(5).fill().map(() => Array(5).fill(0));
-let gameState = 0;
+    const gridElement = document.getElementById('game-grid');
+    const resetButton = document.getElementById('reset');
+    const statusElement = document.getElementById('status');
+    let grid = Array(5).fill().map(() => Array(5).fill(0));
+    let gameState = 0;
+    const dropdown = document.getElementById('custom-dropdown');
+    const dropdownSelected = dropdown.querySelector('.dropdown-selected');
+    const dropdownOptions = dropdown.querySelector('.dropdown-options');
+    const dropdownOptionElements = dropdown.querySelectorAll('.dropdown-option');
+    let currentSelectedModel = "";
 
-function renderGrid() {
-    gridElement.innerHTML = '';
-    for (let i = 0; i < 5; i++) {
-        for (let j = 0; j < 5; j++) {
-            const cell = document.createElement('div');
-            cell.className = 'cell';
-            cell.dataset.value = grid[i][j];
-            cell.dataset.row = i;
-            cell.dataset.col = j;
-            cell.textContent = grid[i][j] === 0 ? '' : grid[i][j] === 1 ? 'X' : 'O';
-            cell.addEventListener('click', handleCellClick);
-            gridElement.appendChild(cell);
+    // Initialize dropdown with first model
+    if (dropdownOptionElements.length > 0) {
+        dropdown.dataset.value = dropdownOptionElements[0].dataset.value;
+        dropdownSelected.innerHTML = dropdownOptionElements[0].innerHTML;
+    }
+
+    dropdownSelected.addEventListener('click', () => {
+        dropdownOptions.style.display = dropdownOptions.style.display === 'block' ? 'none' : 'block';
+    });
+
+    dropdownOptionElements.forEach(option => {
+        option.addEventListener('click', () => {
+            dropdownSelected.innerHTML = option.innerHTML;
+            dropdown.dataset.value = option.dataset.value;
+            dropdownOptions.style.display = 'none';
+            console.log('Model selected:', option.dataset.value);
+        });
+    });
+
+    function renderGrid() {
+        gridElement.innerHTML = '';
+        for (let i = 0; i < 5; i++) {
+            for (let j = 0; j < 5; j++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.dataset.value = grid[i][j];
+                cell.dataset.row = i;
+                cell.dataset.col = j;
+                cell.textContent = grid[i][j] === 0 ? '' : grid[i][j] === 1 ? 'X' : 'O';
+                cell.addEventListener('click', handleCellClick);
+                gridElement.appendChild(cell);
+            }
         }
     }
-}
 
-async function handleCellClick(event) {
-    const row = parseInt(event.target.dataset.row);
-    const col = parseInt(event.target.dataset.col);
-    if (gameState === 1) { // Wait for AI is done thinking
-        console.log('Wacht eff...');
-        return;
+    async function handleCellClick(event) {
+        const row = parseInt(event.target.dataset.row);
+        const col = parseInt(event.target.dataset.col);
+        if (gameState === 1) { // Wait for AI is done thinking
+            console.log('Wacht eff...');
+            return;
+        }
+        if (grid[row][col] !== 0) return; // Player can set only empty cells to O
+
+        grid[row][col] = 2;
+        renderGrid();
+        statusElement.textContent = 'AI denkt...';
+        gameState = 1;
+
+        // Fetch move of AI
+        try {
+            const response = await fetch(`/api/get_next_move`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ grid, model: dropdown.dataset.value})
+            });
+            if (!response.ok) throw new Error('API-fout');
+            const newGrid = await response.json();
+            grid = newGrid;
+            renderGrid();
+            statusElement.textContent = 'Jouw beurt!';
+            gameState = 0;
+        } catch (error) {
+            statusElement.textContent = 'Fout: ' + error.message;
+        }
     }
-    if (grid[row][col] !== 0) return; // Player can set only empty cells to O
 
-    grid[row][col] = 2;
-    renderGrid();
-    statusElement.textContent = 'AI denkt...';
-    gameState = 1;
-
-    // Fetch move of AI
-    try {
-        const response = await fetch(`/api/get_next_move`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(grid)
-        });
-        if (!response.ok) throw new Error('API-fout');
-        const newGrid = await response.json();
-        grid = newGrid;
+    function resetGame() {
+        grid = Array(5).fill().map(() => Array(5).fill(0));
         renderGrid();
         statusElement.textContent = 'Jouw beurt!';
-        gameState = 0;
-    } catch (error) {
-        statusElement.textContent = 'Fout: ' + error.message;
     }
-}
 
-function resetGame() {
-    grid = Array(5).fill().map(() => Array(5).fill(0));
+    resetButton.addEventListener('click', resetGame);
     renderGrid();
-    statusElement.textContent = 'Jouw beurt!';
-}
-
-resetButton.addEventListener('click', resetGame);
-renderGrid();
-
 </script>
