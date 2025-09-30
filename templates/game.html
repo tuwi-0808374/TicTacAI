@@ -94,6 +94,18 @@
             width: 20px;
             height: 20px;
         }
+
+        #game-grid.flashing .cell[data-value="0"] {
+            animation: colorRoll 1.5s infinite;
+        }
+
+        @keyframes colorRoll {
+            0% { background-color: #fff; }
+            /*33% { background-color: lightsteelblue; }*/
+            50% { background-color: lightskyblue; }
+            /*66% { background-color: lightsteelblue; }*/
+            100% { background-color: #fff; }
+        }
     </style>
 </head>
 <body>
@@ -181,7 +193,7 @@
         renderGrid();
         statusElement.textContent = 'AI denkt...';
         gameState = 1;
-
+        gridElement.classList.add('flashing');
         // Fetch move of AI
         try {
             const response = await fetch(`/api/get_next_move`, {
@@ -195,8 +207,11 @@
             renderGrid();
             statusElement.textContent = 'Jouw beurt!';
             gameState = 0;
+            gridElement.classList.remove('flashing');
         } catch (error) {
             statusElement.textContent = 'Fout: ' + error.message;
+            gridElement.classList.remove('flashing');
+            gameState = 0;
         }
     }
 
