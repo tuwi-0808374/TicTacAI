@@ -12,7 +12,12 @@ model_data = {
     "random": {
         "ai_model": "random",
         "icon": "random.png"
+    },
+    "grok-3-mini": {
+        "ai_model": "grok",
+        "icon": "random.png"
     }
+
 }
 
 prompt_data = {

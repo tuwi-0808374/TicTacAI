@@ -1,6 +1,7 @@
 from lib.gemini_model import GeminiModel
 from lib.ollama_model import OllamaModel
 from lib.random_model import RandomModel
+from lib.grok_model import GrokModel
 
 class AIManager():
     def __init__(self):
@@ -11,6 +12,8 @@ class AIManager():
             return GeminiModel()
         elif model_name == "llama3.1:8b":
             return OllamaModel(10, 50)
+        elif model_name == "grok-3-mini":
+            return GrokModel(25, 50)
         else:
             return RandomModel()
 
