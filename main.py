@@ -22,12 +22,14 @@ def get_next_move():
         prompt = data.prompt_data["default"]
 
         grid = request.get_json()['grid']
-        model = request.get_json()['model']
+        model_name = request.get_json()['model']
 
-        if model not in data.model_data:
+        if model_name not in data.model_data:
             return jsonify({'error': 'Model not found'}), 400
 
-        response = ai.get_next_move(grid, prompt, model)
+        ai_model = data.model_data[model_name]["ai_model"]
+
+        response = ai.get_next_move(grid, prompt, model_name, ai_model)
 
         return response, 200
 
