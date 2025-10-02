@@ -11,4 +11,4 @@ class RandomModel(AIModel):
         parsed_response = json.loads(content)
 
         print(parsed_response)
-        return parsed_response
+        return parsed_response, 0, model_name

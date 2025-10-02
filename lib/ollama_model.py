@@ -57,7 +57,7 @@ class OllamaModel(AIModel):
                 if not self.has_one_new_move(grid, new_grid):
                     raise ValueError("Invalid response: Must place exactly one new '1' in an empty '0' cell")
 
-                return new_grid
+                return new_grid, elapsed_time, model_name
 
             except TimeoutError as e:
                 print(f"Timeout op attempt {attempt}: {str(e)}")

@@ -29,7 +29,8 @@ def get_next_move():
 
         ai_model = data.model_data[model_name]["ai_model"]
 
-        response = ai.get_next_move(grid, prompt, model_name, ai_model)
+        new_grid, response_time, model_name = ai.get_next_move(grid, prompt, model_name, ai_model)
+        response = jsonify({'grid': new_grid, 'response_time': response_time, 'model_name': model_name})
 
         return response, 200
 

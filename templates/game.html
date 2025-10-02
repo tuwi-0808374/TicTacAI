@@ -203,7 +203,7 @@
             });
             if (!response.ok) throw new Error('API-fout');
             const newGrid = await response.json();
-            grid = newGrid;
+            grid = newGrid['grid'];
             renderGrid();
             statusElement.textContent = 'Jouw beurt!';
             gameState = 0;
