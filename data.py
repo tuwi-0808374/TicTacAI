@@ -15,7 +15,7 @@ model_data = {
     },
     "grok-3-mini": {
         "ai_model": "grok",
-        "icon": "random.png"
+        "icon": "grok.png"
     }
 
 }
