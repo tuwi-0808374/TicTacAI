@@ -57,3 +57,10 @@ class AIModel(ABC):
             return grid
         else:
             return None
+
+    def grid_is_valid(self, new_grid, old_grid):
+        if not self.is_valid_grid(new_grid):
+            raise ValueError("Invalid response grid: Must be a 5x5 grid with values 0, 1, or 2")
+        if not self.has_one_new_move(old_grid, new_grid):
+            raise ValueError("Invalid response: Must place exactly one new '1' in an empty '0' cell")
+        return True
