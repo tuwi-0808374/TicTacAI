@@ -9,7 +9,7 @@ from openai import OpenAI
 
 from lib.ai_model import AIModel
 
-class GrokModel(AIModel):
+class OpenRouter(AIModel):
     def __init__(self, timeout = 10, max_retries = 50):
         super().__init__(timeout, max_retries)
         pass
@@ -34,7 +34,7 @@ class GrokModel(AIModel):
 
                 # For Grok 3 Mini with high reasoning
                 response = client.chat.completions.create(
-                    model=f"x-ai/{ model_name }",
+                    model=f"{ model_name }",
                     messages=[{"role": "user", "content": json_prompt}],
                 )
 

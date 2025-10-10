@@ -3,19 +3,28 @@
 model_data = {
     "gemini-2.5-flash-lite" : {
         "ai_model": "gemini",
-        "icon" : "gemini.png"
+        "icon" : "gemini.png",
+        "api_name": "gemini-2.5-flash-lite"
     },
     "llama3.1:8b": {
         "ai_model": "ollama",
-        "icon": "ollama.png"
+        "icon": "ollama.png",
+        "api_name": "llama3.1:8b"
     },
     "random": {
         "ai_model": "random",
-        "icon": "random.png"
+        "icon": "random.png",
+        "api_name": "random"
     },
     "grok-3-mini": {
-        "ai_model": "grok",
-        "icon": "grok.png"
+        "ai_model": "openrouter",
+        "icon": "grok.png",
+        "api_name": "x-ai/grok-3-mini"
+    },
+    "DeepSeek: R1 Distill Llama 70B": {
+        "ai_model": "openrouter",
+        "icon": "deepseek.png",
+        "api_name": "deepseek/deepseek-r1-distill-llama-70b:free"
     }
 
 }

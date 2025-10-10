@@ -28,9 +28,10 @@ def get_next_move():
             return jsonify({'error': 'Model not found'}), 400
 
         ai_model = data.model_data[model_name]["ai_model"]
+        api_name = data.model_data[model_name]["api_name"]
 
-        new_grid, response_time, model_name = ai.get_next_move(grid, prompt, model_name, ai_model)
-        response = jsonify({'grid': new_grid, 'response_time': response_time, 'model_name': model_name})
+        new_grid, response_time, model_name = ai.get_next_move(grid, prompt, api_name, ai_model)
+        response = jsonify({'grid': new_grid, 'response_time': response_time, 'api_name': api_name})
 
         return response, 200
 
