@@ -54,7 +54,7 @@ class OllamaModel(AIModel):
 
                 self.grid_is_valid(new_grid, grid)
 
-                return new_grid, elapsed_time, model
+                return new_grid, elapsed_time, model, attempt
 
             except TimeoutError as e:
                 print(f"Timeout op attempt {attempt}: {str(e)}")

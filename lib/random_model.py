@@ -12,4 +12,4 @@ class RandomModel(AIModel):
         content = f"""{new_grid}"""
         parsed_response = json.loads(content)
 
-        return parsed_response, 0, model_name
+        return parsed_response, 0, model_name, 0

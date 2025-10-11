@@ -187,6 +187,10 @@
             console.log('Wacht eff...');
             return;
         }
+        if (gameState === 2) { // Game finished
+            console.log('Spel afgelopen...');
+            return;
+        }
         if (grid[row][col] !== 0) return; // Player can set only empty cells to O
 
         grid[row][col] = 2;
@@ -202,12 +206,25 @@
                 body: JSON.stringify({ grid, model: dropdown.dataset.value})
             });
             if (!response.ok) throw new Error('API-fout');
-            const newGrid = await response.json();
-            grid = newGrid['grid'];
+            const answer = await response.json();
+
+            gridElement.classList.remove('flashing');
+            if (answer['winner'] > 0){
+                gameState = 2
+                resetButton.style.display = '';
+                if (answer['winner'] === 2){
+                    statusElement.textContent = 'Je hebt gewonnen!';
+                }
+                else{
+                    statusElement.textContent = 'De AI heeft gewonnen!';
+                }
+                return;
+            }
+
+            grid = answer['grid'];
             renderGrid();
             statusElement.textContent = 'Jouw beurt!';
             gameState = 0;
-            gridElement.classList.remove('flashing');
         } catch (error) {
             statusElement.textContent = 'Fout: ' + error.message;
             gridElement.classList.remove('flashing');
@@ -216,11 +233,18 @@
     }
 
     function resetGame() {
-        grid = Array(5).fill().map(() => Array(5).fill(0));
-        renderGrid();
-        statusElement.textContent = 'Jouw beurt!';
+        if (gameState === 2) {
+            grid = Array(5).fill().map(() => Array(5).fill(0));
+            renderGrid();
+            gameState = 0;
+            statusElement.textContent = 'Jouw beurt!';
+        }
+        else{
+            statusElement.textContent = 'Eerst spel afmaken.';
+        }
     }
 
     resetButton.addEventListener('click', resetGame);
+    resetButton.style.display = 'none';
     renderGrid();
 </script>

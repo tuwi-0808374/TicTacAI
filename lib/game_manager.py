@@ -1,7 +1,13 @@
 
 class GameManager:
     def __init__(self):
-        pass
+        self.turn = 0
+
+    def next_turn(self):
+        self.turn += 1
+
+    def restart_game(self):
+        self.turn = 0
 
     def check_win(self, grid):
         size = 5
