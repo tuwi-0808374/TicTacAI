@@ -1,0 +1,14 @@
+@startuml
+
+[Flask App] --> [AIManager]
+[AIManager] --> [AIModel]
+[AIModel] <|-- [GeminiModel]
+[AIModel] <|-- [OpenRouter]
+[AIModel] <|-- [OllamaModel]
+[AIModel] <|-- [RandomModel]
+
+[GeminiModel] --> [External APIs]
+[OpenRouter] --> [External APIs]
+[OllamaModel] --> [External APIs]
+
+@enduml
