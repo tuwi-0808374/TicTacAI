@@ -209,22 +209,24 @@
             const answer = await response.json();
 
             gridElement.classList.remove('flashing');
-            if (answer['winner'] > 0){
+            if (answer['who_won'] > 0){
                 gameState = 2
                 resetButton.style.display = '';
-                if (answer['winner'] === 2){
+                if (answer['who_won'] === 2){
                     statusElement.textContent = 'Je hebt gewonnen!';
                 }
                 else{
                     statusElement.textContent = 'De AI heeft gewonnen!';
+                    grid = answer['grid'];
+                    renderGrid();
                 }
-                return;
             }
-
-            grid = answer['grid'];
-            renderGrid();
-            statusElement.textContent = 'Jouw beurt!';
-            gameState = 0;
+            else{
+                grid = answer['grid'];
+                renderGrid();
+                statusElement.textContent = 'Jouw beurt!';
+                gameState = 0;
+            }
         } catch (error) {
             statusElement.textContent = 'Fout: ' + error.message;
             gridElement.classList.remove('flashing');

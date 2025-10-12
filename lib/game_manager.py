@@ -2,12 +2,19 @@
 class GameManager:
     def __init__(self):
         self.turn = 0
+        self.history = []
 
     def next_turn(self):
         self.turn += 1
 
+    def get_current_turn(self):
+        return self.turn
+
     def restart_game(self):
         self.turn = 0
+
+    def add_history(self, history):
+        self.history.append(history)
 
     def check_win(self, grid):
         size = 5

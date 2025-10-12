@@ -25,37 +25,39 @@ def get_next_move():
 
         grid = request.get_json()['grid']
 
-        who_won = game_manager.check_win(grid)
-        if who_won == 1:
-            print("ai win")
-            game_manager.restart_game()
-        elif who_won == 2:
-            print("player win")
-            game_manager.restart_game()
-        else:
-            game_manager.next_turn()
-
         model_name = request.get_json()['model']
-
         if model_name not in data.model_data:
             return jsonify({'error': 'Model not found'}), 400
-
         ai_model = data.model_data[model_name]["ai_model"]
         api_name = data.model_data[model_name]["api_name"]
 
-        new_grid, response_time, model_name, attempt = ai.get_next_move(grid, prompt, api_name, ai_model)
+        who_won = game_manager.check_win(grid)
+        response = {
+            'turn': game_manager.get_current_turn(),
+            'who_won': who_won,
+            'api_name': api_name,
+        }
 
-        response = jsonify(
-            {'grid': new_grid,
-             'response_time': response_time,
-             'attempt': attempt,
-             'api_name': api_name,
-             'winner': who_won}
-        )
+        if who_won == 0:
 
-        print(response.get_json())
+            new_grid, response_time, model_name, attempt = ai.get_next_move(grid, prompt, api_name, ai_model)
 
-        return response, 200
+            who_won = game_manager.check_win(new_grid)
+            response.update({
+                'grid': new_grid,
+                'response_time': response_time,
+                'attempt': attempt,
+                'who_won': who_won
+            })
+
+            game_manager.next_turn()
+
+        if who_won != 0:
+            game_manager.restart_game()
+
+        print(response)
+
+        return jsonify(response), 200
 
 
 if __name__ == "__main__":
