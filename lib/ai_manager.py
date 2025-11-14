@@ -2,6 +2,7 @@ from lib.gemini_model import GeminiModel
 from lib.ollama_model import OllamaModel
 from lib.random_model import RandomModel
 from lib.open_router_model import OpenRouter
+from lib.openai_model import OpenAIAPI
 
 class AIManager():
     def __init__(self):
@@ -14,6 +15,8 @@ class AIManager():
             return OllamaModel(10, 50)
         elif ai_model == "openrouter":
             return OpenRouter(25, 50)
+        elif ai_model == "openai":
+            return OpenAIAPI(25, 50)
         else:
             return RandomModel()
 

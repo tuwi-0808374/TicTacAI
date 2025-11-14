@@ -87,3 +87,32 @@ def test_check_win_vertical():
             ]
     game_manager = GameManager()
     assert game_manager.check_win(grid) == 0
+
+def test_check_win_diagonal():
+    """This tests if the grid has 4 in a diagonal direction"""
+    grid = [[0,0,0,0,0],
+            [0,1,0,0,0],
+            [0,0,1,0,0],
+            [0,0,0,1,0],
+            [0,0,0,0,1]
+            ]
+    game_manager = GameManager()
+    assert game_manager.check_win(grid) == 1
+
+    grid = [[0,0,0,0,0],
+            [0,1,0,0,0],
+            [0,0,1,0,0],
+            [0,0,0,0,0],
+            [0,0,0,0,1]
+            ]
+    game_manager = GameManager()
+    assert game_manager.check_win(grid) == 0
+
+    grid = [[0,0,0,0,0],
+            [0,0,0,1,0],
+            [0,0,1,0,0],
+            [0,1,0,0,0],
+            [1,0,0,0,1]
+            ]
+    game_manager = GameManager()
+    assert game_manager.check_win(grid) == 1

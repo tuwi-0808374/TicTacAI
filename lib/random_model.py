@@ -1,5 +1,7 @@
 import copy
 import json
+import random
+
 from flask import *
 from lib.ai_model import AIModel
 
@@ -12,4 +14,18 @@ class RandomModel(AIModel):
         content = f"""{new_grid}"""
         parsed_response = json.loads(content)
 
-        return parsed_response, 0, model_name, 0
+        return parsed_response, model_name, []
+
+    def random_move(self, grid):
+        """Randomly select a move from the given grid."""
+        potential_cells = []
+        for i in range(5):
+            for j in range(5):
+                if grid[i][j] == 0:
+                    potential_cells.append((i, j))
+        if potential_cells:
+            random_cell = random.choice(potential_cells)
+            grid[random_cell[0]][random_cell[1]] = 1
+            return grid
+        else:
+            return None

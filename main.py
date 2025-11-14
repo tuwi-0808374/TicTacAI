@@ -18,7 +18,6 @@ def game_page():
 @app.route('/api/get_next_move', methods=['POST'])
 def get_next_move():
     if request.method == 'POST':
-        print(request.json)
         ai = AIManager()
 
         prompt = data.prompt_data["default"]
@@ -39,20 +38,22 @@ def get_next_move():
         }
 
         if who_won == 0:
-
-            new_grid, response_time, model_name, attempt = ai.get_next_move(grid, prompt, api_name, ai_model)
+            new_grid, model_name, attempt = ai.get_next_move(grid, prompt, api_name, ai_model)
 
             who_won = game_manager.check_win(new_grid)
             response.update({
                 'grid': new_grid,
-                'response_time': response_time,
                 'attempt': attempt,
                 'who_won': who_won
             })
 
             game_manager.next_turn()
 
+        game_manager.add_history(response)
+
         if who_won != 0:
+            print(f"History of the the game: {game_manager.history}")
+            # Save game in DB
             game_manager.restart_game()
 
         print(response)
