@@ -2,7 +2,6 @@ import json
 import os
 import re
 import time
-import openai
 
 from flask import *
 from openai import OpenAI
@@ -12,6 +11,7 @@ from lib.ai_model import AIModel
 class OpenRouter(AIModel):
     def __init__(self, timeout = 10, max_retries = 50):
         super().__init__(timeout, max_retries)
+        self.attempts = []
         pass
 
     def get_next_move(self, grid, prompt, model_name):
@@ -69,9 +69,12 @@ class OpenRouter(AIModel):
 
                 print(new_grid)
 
+                new_attempt = {"id": attempt, "elapsed_time": elapsed_time}
+                self.attempts.append(new_attempt)
+
                 self.grid_is_valid(new_grid, grid)
 
-                return new_grid, elapsed_time, model_name, attempt
+                return new_grid, model_name, attempt
 
             except TimeoutError as e:
                 print(f"Timeout op attempt {attempt}: {str(e)}")

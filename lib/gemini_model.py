@@ -12,7 +12,6 @@ class GeminiModel(AIModel):
     def __init__(self, timeout = 10, max_retries = 50):
         super().__init__(timeout, max_retries)
         self.attempts = []
-        self.total_time = 0
         pass
 
     def get_next_move(self, grid, prompt, model_name):
