@@ -1,4 +1,3 @@
-import random
 from abc import ABC, abstractmethod
 
 
@@ -43,20 +42,6 @@ class AIModel(ABC):
                         return False
                     differences += 1
         return differences == 1
-
-    def random_move(self, grid):
-        """Randomly select a move from the given grid."""
-        potential_cells = []
-        for i in range(5):
-            for j in range(5):
-                if grid[i][j] == 0:
-                    potential_cells.append((i, j))
-        if potential_cells:
-            random_cell = random.choice(potential_cells)
-            grid[random_cell[0]][random_cell[1]] = 1
-            return grid
-        else:
-            return None
 
     def grid_is_valid(self, new_grid, old_grid):
         if not self.is_valid_grid(new_grid):

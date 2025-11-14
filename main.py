@@ -18,7 +18,6 @@ def game_page():
 @app.route('/api/get_next_move', methods=['POST'])
 def get_next_move():
     if request.method == 'POST':
-        print(request.json)
         ai = AIManager()
 
         prompt = data.prompt_data["default"]
