@@ -14,7 +14,7 @@ class RandomModel(AIModel):
         content = f"""{new_grid}"""
         parsed_response = json.loads(content)
 
-        return parsed_response, 0, model_name, 0
+        return parsed_response, model_name, []
 
     def random_move(self, grid):
         """Randomly select a move from the given grid."""

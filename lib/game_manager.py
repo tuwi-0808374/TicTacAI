@@ -12,6 +12,7 @@ class GameManager:
 
     def restart_game(self):
         self.turn = 0
+        self.history = []
 
     def add_history(self, history):
         self.history.append(history)
