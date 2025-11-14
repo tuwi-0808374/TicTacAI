@@ -107,3 +107,12 @@ def test_check_win_diagonal():
             ]
     game_manager = GameManager()
     assert game_manager.check_win(grid) == 0
+
+    grid = [[0,0,0,0,0],
+            [0,0,0,1,0],
+            [0,0,1,0,0],
+            [0,1,0,0,0],
+            [1,0,0,0,1]
+            ]
+    game_manager = GameManager()
+    assert game_manager.check_win(grid) == 1

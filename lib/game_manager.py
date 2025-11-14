@@ -24,7 +24,7 @@ class GameManager:
             for col in range(size):
                 if grid[row][col] > 0 and col <= size - check:
                     match = True
-                    for cell in range(check):
+                    for cell in range(1, check):
                         if grid[row][col] != grid[row][col + cell]:
                             match = False
                             break
@@ -36,22 +36,37 @@ class GameManager:
             for start_row in range(size):
                 if grid[start_row][col] > 0 and start_row <= size - check:
                     match = True
-                    for cell in range(check):
+                    for cell in range(1, check):
                         if grid[start_row][col] != grid[start_row + cell][col]:
                             match = False
                             break
                     if match:
                         return grid[start_row][col]
 
-        # Diagonal 4 in a row check
+        # Diagonal 4 in a row check (from right to left)
         for row in range(size):
             for col in range(size):
                 if grid[row][col] > 0 and col <= size - check and row <= size - check:
                     match = True
-                    for next_cell in range(check):
+                    for next_cell in range(1, check):
                         # Go to next cell but also one cell down
-                        print(f"{row + next_cell} - {col + next_cell} = {grid[row + next_cell][col + next_cell]}")
+                        # print(f"{row + next_cell} - {col + next_cell} = {grid[row + next_cell][col + next_cell]}")
                         if grid[row][col] != grid[row + next_cell][col + next_cell]:
+                            match = False
+                            break
+                    if match:
+                        return grid[row][col]
+
+        # Diagonal 4 in a row check other side (from left to right)
+        for row in range(size):
+            for col in range(size):
+                if grid[row][col] > 0 and col >= check - 1 and row <= size - check:
+                    print(f"\n# {row} - {col} start {grid[row][col]}")
+                    match = True
+                    for next_cell in range(1, check):
+                        # Go to next cell but also one cell down
+                        print(f"\n# {row + next_cell} - {col - next_cell} = {grid[row + next_cell][col - next_cell]}")
+                        if grid[row][col] != grid[row + next_cell][col - next_cell]:
                             match = False
                             break
                     if match:
