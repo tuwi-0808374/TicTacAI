@@ -27,6 +27,7 @@ class GameManager:
                     for cell in range(check):
                         if grid[row][col] != grid[row][col + cell]:
                             match = False
+                            break
                     if match:
                         return grid[row][col]
 
@@ -38,7 +39,22 @@ class GameManager:
                     for cell in range(check):
                         if grid[start_row][col] != grid[start_row + cell][col]:
                             match = False
+                            break
                     if match:
                         return grid[start_row][col]
+
+        # Diagonal 4 in a row check
+        for row in range(size):
+            for col in range(size):
+                if grid[row][col] > 0 and col <= size - check and row <= size - check:
+                    match = True
+                    for next_cell in range(check):
+                        # Go to next cell but also one cell down
+                        print(f"{row + next_cell} - {col + next_cell} = {grid[row + next_cell][col + next_cell]}")
+                        if grid[row][col] != grid[row + next_cell][col + next_cell]:
+                            match = False
+                            break
+                    if match:
+                        return grid[row][col]
 
         return 0
