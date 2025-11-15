@@ -1,20 +1,25 @@
 
 
 model_data = {
-    "gemini-2.5-flash-lite" : {
+    "Gemini-2.5-flash-lite" : {
         "ai_model": "gemini",
         "icon" : "gemini.png",
         "api_name": "gemini-2.5-flash-lite"
     },
-    "llama3.1:8b": {
-        "ai_model": "ollama",
-        "icon": "ollama.png",
-        "api_name": "llama3.1:8b"
+    "OpenAI - gpt-5.1": {
+        "ai_model": "openai",
+        "icon": "openai.png",
+        "api_name": "gpt-5.1"
     },
     "random": {
         "ai_model": "random",
         "icon": "random.png",
         "api_name": "random"
+    },
+    "llama3.1:8b": {
+        "ai_model": "ollama",
+        "icon": "ollama.png",
+        "api_name": "llama3.1:8b"
     },
     "grok-3-mini": {
         "ai_model": "openrouter",

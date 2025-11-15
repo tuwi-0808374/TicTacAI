@@ -95,6 +95,15 @@
             height: 20px;
         }
 
+        .dropdown.disabled .dropdown-selected {
+            background-color: #f5f5f5;
+            color: #999;
+            cursor: not-allowed;
+        }
+        .dropdown.disabled .dropdown-options {
+            display: none !important;
+        }
+
         #game-grid.flashing .cell[data-value="0"] {
             animation: colorRoll 1.5s infinite;
         }
@@ -123,7 +132,7 @@
     </div>
     <div id="game-grid"></div>
     <button id="reset">Nieuw spel</button>
-    <p id="status">Jouw beurt!</p>
+    <p id="status">Kies een AI en een vakje!</p>
 </body>
 </html>
 
@@ -198,6 +207,13 @@
         statusElement.textContent = 'AI denkt...';
         gameState = 1;
         gridElement.classList.add('flashing');
+
+        // Grey out AI select dropdown menu
+        if (!dropdown.classList.contains('disabled')) {
+            dropdown.classList.add('disabled');
+            dropdownOptions.style.display = 'none';   // close if it was open
+        }
+
         // Fetch move of AI
         try {
             const response = await fetch(`/api/get_next_move`, {
@@ -240,6 +256,11 @@
             renderGrid();
             gameState = 0;
             statusElement.textContent = 'Jouw beurt!';
+
+            // Re-enable drop down menu
+            dropdown.classList.remove('disabled');
+
+            resetButton.style.display = 'none';
         }
         else{
             statusElement.textContent = 'Eerst spel afmaken.';
