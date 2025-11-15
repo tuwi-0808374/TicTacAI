@@ -22,6 +22,7 @@ class DatabaseGenerator:
         CREATE TABLE IF NOT EXISTS games (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             model TEXT NOT NULL,
+            prompt TEXT NOT NULL,
             winner INTEGER NOT NULL,
             turns INTEGER NOT NULL,
             total_time REAL,
