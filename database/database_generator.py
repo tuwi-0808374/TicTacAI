@@ -10,18 +10,56 @@ class DatabaseGenerator:
         self.conn = sqlite3.connect(self.database_file)
 
     def generate_database(self):
-        self.create_table_test()
+        self.create_table_games()
+        self.create_table_moves()
+        self.create_table_attempts()
+
         if self.create_initial_data:
             pass
 
-    def create_table_test(self):
+    def create_table_games(self):
         create_statement = """
-        CREATE TABLE IF NOT EXISTS test (
-            id INTEGER PRIMARY KEY AUTOINCREMENT
+        CREATE TABLE IF NOT EXISTS games (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            model TEXT NOT NULL,
+            prompt TEXT NOT NULL,
+            winner INTEGER NOT NULL,
+            turns INTEGER NOT NULL,
+            total_time REAL,
+            total_attempts INTEGER,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );
         """
         self.__execute_transaction_statement(create_statement)
-        print("Test table created")
+        print("games table created")
+
+    def create_table_moves(self):
+        create_statement = """
+        CREATE TABLE IF NOT EXISTS moves (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            game_id INTEGER NOT NULL,
+            turn INTEGER NOT NULL,
+            grid TEXT NOT NULL,
+            response_time REAL NOT NULL,
+            attempt_count INTEGER NOT NULL,
+            FOREIGN KEY (game_id) REFERENCES games (id)
+        );
+        """
+        self.__execute_transaction_statement(create_statement)
+        print("moves table created")
+
+    def create_table_attempts(self):
+        create_statement = """
+        CREATE TABLE IF NOT EXISTS attempts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            move_id INTEGER NOT NULL,
+            attempt_number INTEGER NOT NULL,
+            elapsed_time REAL,
+            FOREIGN KEY (move_id) REFERENCES moves (id)
+        );
+        """
+        self.__execute_transaction_statement(create_statement)
+        print("attemps table created")
 
     def __execute_transaction_statement(self, create_statement, parameters=()):
         c = self.conn.cursor()
