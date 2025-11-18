@@ -20,7 +20,8 @@ def get_next_move():
     if request.method == 'POST':
         ai = AIManager()
 
-        prompt = data.prompt_data["default"]
+        prompt_title = "default"
+        prompt = data.prompt_data[prompt_title]
 
         grid = request.get_json()['grid']
 
@@ -33,8 +34,9 @@ def get_next_move():
         who_won = game_manager.check_win(grid)
         response = {
             'turn': game_manager.get_current_turn(),
-            'who_won': who_won,
-            'api_name': api_name,
+            'winner': who_won,
+            'model': api_name,
+            'prompt': prompt_title
         }
 
         if who_won == 0:
@@ -44,7 +46,7 @@ def get_next_move():
             response.update({
                 'grid': new_grid,
                 'attempt': attempt,
-                'who_won': who_won
+                'winner': who_won
             })
 
             game_manager.next_turn()
@@ -53,10 +55,10 @@ def get_next_move():
 
         if who_won != 0:
             print(f"History of the the game: {game_manager.history}")
-            # Save game in DB
+            game_manager.save_history()
             game_manager.restart_game()
 
-        print(response)
+        # print(response)
 
         return jsonify(response), 200
 

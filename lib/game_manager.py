@@ -1,3 +1,4 @@
+from lib.game_model import Game
 
 class GameManager:
     def __init__(self):
@@ -16,6 +17,14 @@ class GameManager:
 
     def add_history(self, history):
         self.history.append(history)
+
+    def save_history(self):
+        game = Game()
+        last_turn = self.history[len(self.history) - 1]
+        last_turn["turns"] = self.turn
+        last_turn["total_time"] = 99
+        last_turn["total_attempts"] = 99
+        game.add_game(last_turn)
 
     def check_win(self, grid):
         size = 5
