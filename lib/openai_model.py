@@ -67,7 +67,7 @@ class OpenAIAPI(AIModel):
 
                 self.grid_is_valid(new_grid, grid)
 
-                return new_grid, model_name, attempt
+                return new_grid, model_name, self.attempts
 
             except TimeoutError as e:
                 print(f"Timeout op attempt {attempt}: {str(e)}")

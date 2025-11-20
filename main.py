@@ -36,16 +36,16 @@ def get_next_move():
             'turn': game_manager.get_current_turn(),
             'winner': who_won,
             'model': api_name,
-            'prompt': prompt_title
+            'prompt': prompt_title,
         }
 
         if who_won == 0:
-            new_grid, model_name, attempt = ai.get_next_move(grid, prompt, api_name, ai_model)
+            new_grid, model_name, attempts = ai.get_next_move(grid, prompt, api_name, ai_model)
 
             who_won = game_manager.check_win(new_grid)
             response.update({
                 'grid': new_grid,
-                'attempt': attempt,
+                'attempt': attempts,
                 'winner': who_won
             })
 

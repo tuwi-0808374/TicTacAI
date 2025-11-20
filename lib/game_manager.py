@@ -22,8 +22,15 @@ class GameManager:
         game = Game()
         last_turn = self.history[len(self.history) - 1]
         last_turn["turns"] = self.turn
-        last_turn["total_time"] = 99
-        last_turn["total_attempts"] = 99
+        total_time = 0
+        total_attempts = 0
+        for item in self.history:
+            if "attempt" in item:
+                total_attempts += len(item["attempt"])
+                for attempt_item in item["attempt"]:
+                    total_time += attempt_item["elapsed_time"]
+        last_turn["total_time"] = total_time
+        last_turn["total_attempts"] = total_attempts
         game.add_game(last_turn)
 
     def check_win(self, grid):
