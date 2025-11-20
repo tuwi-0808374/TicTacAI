@@ -40,8 +40,8 @@ class DatabaseGenerator:
             game_id INTEGER NOT NULL,
             turn INTEGER NOT NULL,
             grid TEXT NOT NULL,
-            response_time REAL NOT NULL,
-            attempt_count INTEGER NOT NULL,
+            response_time REAL,
+            attempt_count INTEGER,
             FOREIGN KEY (game_id) REFERENCES games (id)
         );
         """

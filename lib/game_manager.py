@@ -3,7 +3,7 @@ from lib.game_model import Game
 class GameManager:
     def __init__(self):
         self.turn = 0
-        self.history = []
+        self.moves = []
 
     def next_turn(self):
         self.turn += 1
@@ -13,25 +13,38 @@ class GameManager:
 
     def restart_game(self):
         self.turn = 0
-        self.history = []
+        self.moves = []
 
-    def add_history(self, history):
-        self.history.append(history)
+    def add_move(self, move):
+        self.moves.append(move)
 
-    def save_history(self):
+    def save_move(self):
         game = Game()
-        last_turn = self.history[len(self.history) - 1]
-        last_turn["turns"] = self.turn
+
+        # add game to db
+        game_data = self.moves[len(self.moves) - 1]
+        game_data["turns"] = self.turn
         total_time = 0
         total_attempts = 0
-        for item in self.history:
-            if "attempt" in item:
-                total_attempts += len(item["attempt"])
-                for attempt_item in item["attempt"]:
+        for move in self.moves:
+            if "attempt" in move:
+                total_attempts += len(move["attempt"])
+                for attempt_item in move["attempt"]:
                     total_time += attempt_item["elapsed_time"]
-        last_turn["total_time"] = total_time
-        last_turn["total_attempts"] = total_attempts
-        game.add_game(last_turn)
+        game_data["total_time"] = total_time
+        game_data["total_attempts"] = total_attempts
+        game_id = game.add_game(game_data)
+
+        # add move to db
+        for move in self.moves:
+            move_data = {}
+            move_data["game_id"] = game_id
+            move_data["turn"] = move["turn"]
+            move_data["grid"] = str(move["grid"])
+            print(move_data)
+            game.add_move(move_data)
+
+
 
     def check_win(self, grid):
         size = 5

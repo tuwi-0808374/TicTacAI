@@ -30,3 +30,21 @@ class Game:
         game_id = self.cursor.lastrowid
 
         return game_id
+
+    def add_move(self, move):
+        placeholders = [
+            "game_id", "turn", "grid"
+        ]
+        values = []
+        for column in placeholders:
+            values.append(move[column])
+
+        self.cursor.execute(
+            f"INSERT INTO moves ({', '.join(placeholders)}) VALUES ({', '.join(['?'] * len(placeholders))})",
+            values
+        )
+        self.con.commit()
+
+        move_id = self.cursor.lastrowid
+
+        return move_id
