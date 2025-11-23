@@ -6,7 +6,7 @@ import time
 from flask import *
 from openai import OpenAI
 
-from lib.ai_model import AIModel
+from lib.ai_models.ai_model import AIModel
 
 class OpenAIAPI(AIModel):
     def __init__(self, timeout = 10, max_retries = 50):

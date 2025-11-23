@@ -3,7 +3,7 @@ import json
 import random
 
 from flask import *
-from lib.ai_model import AIModel
+from lib.ai_models.ai_model import AIModel
 
 class RandomModel(AIModel):
 
