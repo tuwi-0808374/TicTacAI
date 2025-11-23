@@ -225,10 +225,10 @@
             const answer = await response.json();
 
             gridElement.classList.remove('flashing');
-            if (answer['who_won'] > 0){
+            if (answer['winner'] > 0){
                 gameState = 2
                 resetButton.style.display = '';
-                if (answer['who_won'] === 2){
+                if (answer['winner'] === 2){
                     statusElement.textContent = 'Je hebt gewonnen!';
                 }
                 else{

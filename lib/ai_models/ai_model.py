@@ -1,4 +1,7 @@
+import json
+import re
 from abc import ABC, abstractmethod
+from typing import Any
 
 
 class AIModel(ABC):
@@ -49,3 +52,21 @@ class AIModel(ABC):
         if not self.has_one_new_move(old_grid, new_grid):
             raise ValueError("Invalid response: Must place exactly one new '1' in an empty '0' cell")
         return True
+
+    def parse_json_response(self, json_response):
+        content = json_response
+        content = content.replace('```json', '').replace('```', '').strip()
+
+        json_objects = re.findall(r'\[\[.*?\]\]', content)
+        if json_objects:
+            return json.loads(json_objects[0])
+        else:
+            raise ValueError(f"No valid JSON array found in response: {content}")
+
+    def parse_grid(self, parsed_response) -> Any:
+        # Handle wrapped response (e.g., {"grid": [...]})
+        if isinstance(parsed_response, dict) and "grid" in parsed_response:
+            new_grid = parsed_response["grid"]
+        else:
+            new_grid = parsed_response
+        return new_grid

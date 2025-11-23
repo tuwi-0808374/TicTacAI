@@ -3,15 +3,16 @@ import time
 import ollama
 from ollama import Client
 
-from lib.ai_model import AIModel
+from lib.ai_models.ai_model import AIModel
 
 
 class OllamaModel(AIModel):
     def __init__(self, timeout = 30, max_retries = 50):
         super().__init__(timeout, max_retries)
+        self.attempts = []
         pass
 
-    def get_next_move(self, grid, prompt, model):
+    def get_next_move(self, grid, prompt, model_name):
         grid_json = json.dumps(grid)
         json_prompt = self.make_prompt(grid_json, prompt)
 
@@ -27,7 +28,7 @@ class OllamaModel(AIModel):
 
                 # Send prompt to model
                 json_response = client.chat(
-                    model=model,
+                    model=model_name,
                     messages=[{"role": "user", "content": json_prompt}],
                 )
 
@@ -36,25 +37,17 @@ class OllamaModel(AIModel):
                 if elapsed_time > self.timeout:
                     raise TimeoutError(f"Ollama call timed out after {elapsed_time:.2f} seconds (limiet: {self.timeout}s)")
 
-                content = json_response["message"]["content"]
+                parsed_response = self.parse_json_response(json_response["message"]["content"])
 
-                # Clean response (remove Markdown)
-                content = content.replace('```json', '').replace('```', '').strip()
-
-                # Parse response
-                parsed_response = json.loads(content)
-
-                # Handle wrapped response (e.g., {"grid": [...]})
-                if isinstance(parsed_response, dict) and "grid" in parsed_response:
-                    new_grid = parsed_response["grid"]
-                else:
-                    new_grid = parsed_response
-
+                new_grid = self.parse_grid(parsed_response)
                 print(new_grid)
+
+                new_attempt = {"id": attempt, "elapsed_time": elapsed_time}
+                self.attempts.append(new_attempt)
 
                 self.grid_is_valid(new_grid, grid)
 
-                return new_grid, elapsed_time, model, attempt
+                return new_grid, model_name, self.attempts
 
             except TimeoutError as e:
                 print(f"Timeout op attempt {attempt}: {str(e)}")

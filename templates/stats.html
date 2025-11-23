@@ -1,0 +1,83 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Chart.js Example</title>
+</head>
+<body>
+    <div style="height: 50vh; width: 50%;">
+        <canvas id="pieChart"></canvas>
+    </div>
+
+    <script>
+        // Source:
+        // https://www.chartjs.org/docs/latest/samples/other-charts/pie.html
+        // https://www.w3schools.com/js/js_json_parse.asp
+
+        async function fetchPieData() {
+             // Fetch pie data
+            try {
+                const response = await fetch(`/api/stats/most_used_models`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' },
+                });
+                if (!response.ok) throw new Error('API-fout');
+                const pieData = await response.json();
+                var labels = [];
+                var charData = [];
+                for (const x in pieData) {
+                    charData.push(x);
+                    labels.push(pieData[x]);
+                }
+
+                makePieChart(labels, charData);
+
+            } catch (error) {
+                console.log(error.message);
+            }
+        }
+
+        fetchPieData();
+
+        function makePieChart(labels, chartData) {
+            // const labels = ['Red', 'Orange', 'Yellow', 'Green', 'Blue'];
+            // const chartData = [1,1,1,1,1];
+            const bgColors = ['Blue', 'Red', 'Green', 'Yellow', 'Red', 'White'];
+
+            const data = {
+                labels: labels,
+                datasets: [{
+                    label: 'Sales',
+                    backgroundColor: bgColors,
+                    borderColor: 'black',
+                    data: chartData,
+                }]
+            };
+
+            const config = {
+                type: 'pie',
+                data: data,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Chart.js Pie Chart'
+                        }
+                    }
+                },
+            };
+
+            const pieChart = new Chart(
+                document.getElementById('pieChart'),
+                config
+            );
+        }
+
+    </script>
+</body>
+</html>

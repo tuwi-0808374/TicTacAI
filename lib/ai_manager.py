@@ -1,8 +1,8 @@
-from lib.gemini_model import GeminiModel
-from lib.ollama_model import OllamaModel
-from lib.random_model import RandomModel
-from lib.open_router_model import OpenRouter
-from lib.openai_model import OpenAIAPI
+from lib.ai_models.gemini_model import GeminiModel
+from lib.ai_models.ollama_model import OllamaModel
+from lib.ai_models.random_model import RandomModel
+from lib.ai_models.open_router_model import OpenRouter
+from lib.ai_models.openai_model import OpenAIAPI
 
 class AIManager():
     def __init__(self):
