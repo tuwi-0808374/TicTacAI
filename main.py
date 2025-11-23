@@ -4,15 +4,19 @@ import data
 from lib.ai_manager import AIManager
 from data import *
 from lib.game_manager import GameManager
+from lib.statistics import Statistics
 
 game_manager = GameManager()
 app = Flask(__name__)
 @app.route('/')
 def home_page():
+    stats = Statistics()
+    print(stats.get_most_used_models())
     return render_template('home.html')
 
 @app.route('/game')
 def game_page():
+
     return render_template('game.html', possible_models = model_data)
 
 @app.route('/api/get_next_move', methods=['POST'])
