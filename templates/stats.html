@@ -7,10 +7,9 @@
 </head>
 <body>
     <div style="height: 50vh; width: 50%;">
-        <canvas id="myChart"></canvas>
+        <canvas id="pieChart"></canvas>
     </div>
 
-    <!-- Store Flask data as a JavaScript variable -->
     <script>
         // Source:
         // https://www.chartjs.org/docs/latest/samples/other-charts/pie.html
@@ -73,8 +72,8 @@
                 },
             };
 
-            const myChart = new Chart(
-                document.getElementById('myChart'),
+            const pieChart = new Chart(
+                document.getElementById('pieChart'),
                 config
             );
         }

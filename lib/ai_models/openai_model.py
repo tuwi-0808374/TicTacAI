@@ -43,24 +43,9 @@ class OpenAIAPI(AIModel):
                 if elapsed_time > self.timeout:
                     raise TimeoutError(f"{model_name} call timed out after {elapsed_time:.2f} seconds (limiet: {self.timeout}s)")
 
-                content = json_response
+                parsed_response = self.parse_json_response(json_response.text)
 
-                content = content.replace('```json', '').replace('```', '').strip()
-
-                json_objects = re.findall(r'\[\[.*?\]\]', content)
-                if json_objects:
-                    content = json_objects[0]
-                else:
-                    raise ValueError(f"No valid JSON array found in response: {content}")
-
-                parsed_response = json.loads(content)
-
-                if isinstance(parsed_response, dict) and "grid" in parsed_response:
-                    new_grid = parsed_response["grid"]
-                else:
-                    new_grid = parsed_response
-
-                print(new_grid)
+                new_grid = self.parse_grid(parsed_response)
 
                 new_attempt = {"id": attempt, "elapsed_time": elapsed_time}
                 self.attempts.append(new_attempt)

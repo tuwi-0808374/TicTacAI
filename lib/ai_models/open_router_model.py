@@ -1,6 +1,5 @@
 import json
 import os
-import re
 import time
 
 from flask import *
@@ -46,35 +45,16 @@ class OpenRouter(AIModel):
                 if elapsed_time > self.timeout:
                     raise TimeoutError(f"{model_name} call timed out after {elapsed_time:.2f} seconds (limiet: {self.timeout}s)")
 
-                content = json_response
+                parsed_response = self.parse_json_response(json_response)
 
-                # Clean response (remove Markdown)
-                content = content.replace('```json', '').replace('```', '').strip()
-
-                # Extract the first valid JSON array to handle multiple objects
-                json_objects = re.findall(r'\[\[.*?\]\]', content)
-                if json_objects:
-                    content = json_objects[0]
-                else:
-                    raise ValueError(f"No valid JSON array found in response: {content}")
-
-                # Attempts to parse the JSON response.
-                parsed_response = json.loads(content)
-
-                # Handle wrapped response (e.g., {"grid": [...]})
-                if isinstance(parsed_response, dict) and "grid" in parsed_response:
-                    new_grid = parsed_response["grid"]
-                else:
-                    new_grid = parsed_response
-
-                print(new_grid)
+                new_grid = self.parse_grid(parsed_response)
 
                 new_attempt = {"id": attempt, "elapsed_time": elapsed_time}
                 self.attempts.append(new_attempt)
 
                 self.grid_is_valid(new_grid, grid)
 
-                return new_grid, model_name, attempt
+                return new_grid, model_name, self.attempts
 
             except TimeoutError as e:
                 print(f"Timeout op attempt {attempt}: {str(e)}")
