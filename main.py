@@ -10,13 +10,20 @@ game_manager = GameManager()
 app = Flask(__name__)
 @app.route('/')
 def home_page():
-    stats = Statistics()
-    print(stats.get_most_used_models())
     return render_template('home.html')
+
+@app.route('/stats')
+def stats():
+    return render_template('stats.html')
+
+@app.route('/api/stats/most_used_models')
+def most_used_models():
+    stats = Statistics()
+    response = jsonify(stats.get_most_used_models())
+    return response, 200
 
 @app.route('/game')
 def game_page():
-
     return render_template('game.html', possible_models = model_data)
 
 @app.route('/api/get_next_move', methods=['POST'])

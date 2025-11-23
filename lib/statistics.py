@@ -16,6 +16,6 @@ class Statistics:
             "SELECT COUNT(model) AS count, model FROM games GROUP BY model ORDER BY count DESC"
         ).fetchall()
 
-        return [dict(row) for row in result]
-
+        # return [dict(row) for row in result]
+        return dict(result)
 
