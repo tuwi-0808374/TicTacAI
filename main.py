@@ -10,7 +10,7 @@ game_manager = GameManager()
 app = Flask(__name__)
 @app.route('/')
 def home_page():
-    return render_template('home.html')
+    return redirect('game')
 
 @app.route('/stats')
 def stats():
@@ -20,6 +20,12 @@ def stats():
 def most_used_models():
     stats = Statistics()
     response = jsonify(stats.get_most_used_models())
+    return response, 200
+
+@app.route('/api/stats/winning_models')
+def winning_models():
+    stats = Statistics()
+    response = jsonify(stats.get_winning_model())
     return response, 200
 
 @app.route('/game')

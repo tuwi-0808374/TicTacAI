@@ -4,19 +4,59 @@
 <head>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <title>Chart.js Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f0f0;
+        }
+        .chart-container {
+            width: 80%;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        #right-corner-nav {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            text-decoration: none;
+            z-index: 1000;
+            transition: background-color 0.3s ease;
+        }
+        #right-corner-nav:hover {
+            background-color: rgba(0, 0, 0, 0.9);
+        }
+    </style>
 </head>
 <body>
-    <div style="height: 50vh; width: 50%;">
-        <canvas id="pieChart"></canvas>
+    <a href="/game" id="right-corner-nav">
+        GAME
+    </a>
+    <div class="chart-container">
+        <canvas id="most_used_models"></canvas>
     </div>
-
+    <div class="chart-container">
+        <canvas id="winning_models"></canvas>
+    </div>
+</body>
+</html>
     <script>
         // Source:
         // https://www.chartjs.org/docs/latest/samples/other-charts/pie.html
         // https://www.w3schools.com/js/js_json_parse.asp
 
-        async function fetchPieData() {
-             // Fetch pie data
+        async function fetchMostUsedModels() {
             try {
                 const response = await fetch(`/api/stats/most_used_models`, {
                     method: 'GET',
@@ -31,16 +71,40 @@
                     labels.push(pieData[x]);
                 }
 
-                makePieChart(labels, charData);
+                makePieChart(labels, charData, "Most used models", "most_used_models");
 
             } catch (error) {
                 console.log(error.message);
             }
         }
 
-        fetchPieData();
+        fetchMostUsedModels();
 
-        function makePieChart(labels, chartData) {
+        async function fetchWinningModels() {
+            try {
+                const response = await fetch(`/api/stats/winning_models`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' },
+                });
+                if (!response.ok) throw new Error('API-fout');
+                const pieData = await response.json();
+                var labels = [];
+                var charData = [];
+                for (const x in pieData) {
+                    charData.push(x);
+                    labels.push(pieData[x]);
+                }
+
+                makePieChart(labels, charData, "Winning models", "winning_models");
+
+            } catch (error) {
+                console.log(error.message);
+            }
+        }
+
+        fetchWinningModels();
+
+        function makePieChart(labels, chartData, title_text, canvas_id) {
             // const labels = ['Red', 'Orange', 'Yellow', 'Green', 'Blue'];
             // const chartData = [1,1,1,1,1];
             const bgColors = ['Blue', 'Red', 'Green', 'Yellow', 'Red', 'White'];
@@ -48,7 +112,6 @@
             const data = {
                 labels: labels,
                 datasets: [{
-                    label: 'Sales',
                     backgroundColor: bgColors,
                     borderColor: 'black',
                     data: chartData,
@@ -66,18 +129,16 @@
                         },
                         title: {
                             display: true,
-                            text: 'Chart.js Pie Chart'
+                            text: title_text
                         }
                     }
                 },
             };
 
             const pieChart = new Chart(
-                document.getElementById('pieChart'),
+                document.getElementById(canvas_id),
                 config
             );
         }
 
     </script>
-</body>
-</html>
