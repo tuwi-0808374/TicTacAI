@@ -24,3 +24,18 @@ class Statistics:
             "SELECT COUNT(model) AS model_count, model FROM games WHERE winner == 1 GROUP BY model ORDER BY model_count DESC"
         ).fetchall()
         return dict(result)
+
+    def get_user_vs_ai(self):
+        result = self.cursor.execute(
+            """SELECT 
+                    COUNT(*) AS win_count,
+                    CASE winner
+                        WHEN 1 THEN 'AI'
+                        WHEN 2 THEN 'User'
+                        ELSE 'Draw'
+                    END AS winner_name
+                FROM games
+                GROUP BY winner
+                ORDER BY winner DESC;"""
+        ).fetchall()
+        return dict(result)

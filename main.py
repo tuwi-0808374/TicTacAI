@@ -28,6 +28,12 @@ def winning_models():
     response = jsonify(stats.get_winning_model())
     return response, 200
 
+@app.route('/api/stats/user_vs_ai')
+def user_vs_ai():
+    stats = Statistics()
+    response = jsonify(stats.get_user_vs_ai())
+    return response, 200
+
 @app.route('/game')
 def game_page():
     return render_template('game.html', possible_models = model_data)

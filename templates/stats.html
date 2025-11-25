@@ -37,17 +37,28 @@
         #right-corner-nav:hover {
             background-color: rgba(0, 0, 0, 0.9);
         }
+        .explanation{
+            margin: 10px;
+            text-align: center;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
     <a href="/game" id="right-corner-nav">
         GAME
     </a>
-    <div class="chart-container">
-        <canvas id="most_used_models"></canvas>
+    <div id="most_used_models" class="chart-container">
+        <canvas ></canvas>
+        <div class="explanation"></div>
     </div>
-    <div class="chart-container">
-        <canvas id="winning_models"></canvas>
+    <div id="winning_models" class="chart-container">
+        <canvas></canvas>
+        <div class="explanation"></div>
+    </div>
+    <div id="user_vs_ai" class="chart-container">
+        <canvas></canvas>
+        <div class="explanation"></div>
     </div>
 </body>
 </html>
@@ -55,6 +66,9 @@
         // Source:
         // https://www.chartjs.org/docs/latest/samples/other-charts/pie.html
         // https://www.w3schools.com/js/js_json_parse.asp
+        // https://stackoverflow.com/questions/7815374/get-element-inside-element-by-class-and-id-javascript
+        // https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
+        // https://grok.com/share/bGVnYWN5LWNvcHk_4cb68e56-28e1-4aee-a153-d51f378d0c52
 
         async function fetchMostUsedModels() {
             try {
@@ -70,6 +84,9 @@
                     charData.push(x);
                     labels.push(pieData[x]);
                 }
+
+                const explanation_element = document.getElementById('most_used_models').getElementsByClassName('explanation')[0];
+                explanation_element.textContent = "The most used model is " + labels[labels.length - 1] + ".";
 
                 makePieChart(labels, charData, "Most used models", "most_used_models");
 
@@ -95,6 +112,9 @@
                     labels.push(pieData[x]);
                 }
 
+                const explanation_element = document.getElementById('winning_models').getElementsByClassName('explanation')[0];
+                explanation_element.textContent = "The best model is " + labels[labels.length - 1] + ".";
+
                 makePieChart(labels, charData, "Winning models", "winning_models");
 
             } catch (error) {
@@ -104,10 +124,45 @@
 
         fetchWinningModels();
 
+        async function fetchAIvsUser() {
+            try {
+                const response = await fetch(`/api/stats/user_vs_ai`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' },
+                });
+                if (!response.ok) throw new Error('API-fout');
+                const pieData = await response.json();
+                var labels = [];
+                var charData = [];
+                for (const x in pieData) {
+                    charData.push(x);
+                    labels.push(pieData[x]);
+                }
+
+                const explanation_element = document.getElementById('user_vs_ai').getElementsByClassName('explanation')[0];
+                explanation_element.textContent = "The winner is " + labels[labels.length - 1] + ".";
+
+                makePieChart(labels, charData, "User vs AI", "user_vs_ai");
+
+            } catch (error) {
+                console.log(error.message);
+            }
+        }
+
+        fetchAIvsUser();
+
+
         function makePieChart(labels, chartData, title_text, canvas_id) {
             // const labels = ['Red', 'Orange', 'Yellow', 'Green', 'Blue'];
             // const chartData = [1,1,1,1,1];
-            const bgColors = ['Blue', 'Red', 'Green', 'Yellow', 'Red', 'White'];
+            let bgColors = ['Blue', 'Red', 'Green', 'Yellow', 'Red', 'Grey'];
+            let shuffled = bgColors
+            .map(value => ({ value, sort: Math.random() }))
+            .sort((a, b) => a.sort - b.sort)
+            .map(({ value }) => value)
+            bgColors = shuffled
+
+
 
             const data = {
                 labels: labels,
@@ -136,7 +191,7 @@
             };
 
             const pieChart = new Chart(
-                document.getElementById(canvas_id),
+                document.getElementById(canvas_id).getElementsByTagName('canvas'),
                 config
             );
         }
