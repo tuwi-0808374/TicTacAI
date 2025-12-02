@@ -13,7 +13,7 @@ class Statistics:
 
     def get_most_used_models(self):
         result = self.cursor.execute(
-            "SELECT COUNT(model) AS count, model FROM games GROUP BY model ORDER BY count DESC"
+            "SELECT COUNT(model) AS count, model FROM games WHERE model IS NOT 'random' GROUP BY model ORDER BY count DESC"
         ).fetchall()
 
         # return [dict(row) for row in result]
@@ -21,7 +21,7 @@ class Statistics:
 
     def get_winning_model(self):
         result = self.cursor.execute(
-            "SELECT COUNT(model) AS model_count, model FROM games WHERE winner == 1 GROUP BY model ORDER BY model_count DESC"
+            "SELECT COUNT(model) AS model_count, model FROM games WHERE model IS NOT 'random' AND winner == 1 GROUP BY model ORDER BY model_count DESC"
         ).fetchall()
         return dict(result)
 
@@ -35,6 +35,7 @@ class Statistics:
                         ELSE 'Draw'
                     END AS winner_name
                 FROM games
+                WHERE model IS NOT 'random'
                 GROUP BY winner
                 ORDER BY winner DESC;"""
         ).fetchall()

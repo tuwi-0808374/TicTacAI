@@ -43,7 +43,7 @@ class OpenAIAPI(AIModel):
                 if elapsed_time > self.timeout:
                     raise TimeoutError(f"{model_name} call timed out after {elapsed_time:.2f} seconds (limiet: {self.timeout}s)")
 
-                parsed_response = self.parse_json_response(json_response.text)
+                parsed_response = self.parse_json_response(json_response)
 
                 new_grid = self.parse_grid(parsed_response)
 
