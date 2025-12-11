@@ -4,19 +4,73 @@
 <head>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <title>Chart.js Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f0f0;
+        }
+        .chart-container {
+            width: 80%;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        #right-corner-nav {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            text-decoration: none;
+            z-index: 1000;
+            transition: background-color 0.3s ease;
+        }
+        #right-corner-nav:hover {
+            background-color: rgba(0, 0, 0, 0.9);
+        }
+        .explanation{
+            margin: 10px;
+            text-align: center;
+            font-style: italic;
+        }
+    </style>
 </head>
 <body>
-    <div style="height: 50vh; width: 50%;">
-        <canvas id="pieChart"></canvas>
+    <a href="/game" id="right-corner-nav">
+        GAME
+    </a>
+    <div id="most_used_models" class="chart-container">
+        <canvas ></canvas>
+        <div class="explanation"></div>
     </div>
-
+    <div id="winning_models" class="chart-container">
+        <canvas></canvas>
+        <div class="explanation"></div>
+    </div>
+    <div id="user_vs_ai" class="chart-container">
+        <canvas></canvas>
+        <div class="explanation"></div>
+    </div>
+</body>
+</html>
     <script>
         // Source:
         // https://www.chartjs.org/docs/latest/samples/other-charts/pie.html
         // https://www.w3schools.com/js/js_json_parse.asp
+        // https://stackoverflow.com/questions/7815374/get-element-inside-element-by-class-and-id-javascript
+        // https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
+        // https://grok.com/share/bGVnYWN5LWNvcHk_4cb68e56-28e1-4aee-a153-d51f378d0c52
 
-        async function fetchPieData() {
-             // Fetch pie data
+        async function fetchMostUsedModels() {
             try {
                 const response = await fetch(`/api/stats/most_used_models`, {
                     method: 'GET',
@@ -31,24 +85,88 @@
                     labels.push(pieData[x]);
                 }
 
-                makePieChart(labels, charData);
+                const explanation_element = document.getElementById('most_used_models').getElementsByClassName('explanation')[0];
+                explanation_element.textContent = "The most used model is " + labels[labels.length - 1] + ".";
+
+                makePieChart(labels, charData, "Most used models", "most_used_models");
 
             } catch (error) {
                 console.log(error.message);
             }
         }
 
-        fetchPieData();
+        fetchMostUsedModels();
 
-        function makePieChart(labels, chartData) {
+        async function fetchWinningModels() {
+            try {
+                const response = await fetch(`/api/stats/winning_models`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' },
+                });
+                if (!response.ok) throw new Error('API-fout');
+                const pieData = await response.json();
+                var labels = [];
+                var charData = [];
+                for (const x in pieData) {
+                    charData.push(x);
+                    labels.push(pieData[x]);
+                }
+
+                const explanation_element = document.getElementById('winning_models').getElementsByClassName('explanation')[0];
+                explanation_element.textContent = "The best model is " + labels[labels.length - 1] + ".";
+
+                makePieChart(labels, charData, "Winning models", "winning_models");
+
+            } catch (error) {
+                console.log(error.message);
+            }
+        }
+
+        fetchWinningModels();
+
+        async function fetchAIvsUser() {
+            try {
+                const response = await fetch(`/api/stats/user_vs_ai`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' },
+                });
+                if (!response.ok) throw new Error('API-fout');
+                const pieData = await response.json();
+                var labels = [];
+                var charData = [];
+                for (const x in pieData) {
+                    charData.push(x);
+                    labels.push(pieData[x]);
+                }
+
+                const explanation_element = document.getElementById('user_vs_ai').getElementsByClassName('explanation')[0];
+                explanation_element.textContent = "The winner is " + labels[labels.length - 1] + ".";
+
+                makePieChart(labels, charData, "User vs AI", "user_vs_ai");
+
+            } catch (error) {
+                console.log(error.message);
+            }
+        }
+
+        fetchAIvsUser();
+
+
+        function makePieChart(labels, chartData, title_text, canvas_id) {
             // const labels = ['Red', 'Orange', 'Yellow', 'Green', 'Blue'];
             // const chartData = [1,1,1,1,1];
-            const bgColors = ['Blue', 'Red', 'Green', 'Yellow', 'Red', 'White'];
+            let bgColors = ['Blue', 'Red', 'Green', 'Yellow', 'Red', 'Grey'];
+            let shuffled = bgColors
+            .map(value => ({ value, sort: Math.random() }))
+            .sort((a, b) => a.sort - b.sort)
+            .map(({ value }) => value)
+            bgColors = shuffled
+
+
 
             const data = {
                 labels: labels,
                 datasets: [{
-                    label: 'Sales',
                     backgroundColor: bgColors,
                     borderColor: 'black',
                     data: chartData,
@@ -66,18 +184,16 @@
                         },
                         title: {
                             display: true,
-                            text: 'Chart.js Pie Chart'
+                            text: title_text
                         }
                     }
                 },
             };
 
             const pieChart = new Chart(
-                document.getElementById('pieChart'),
+                document.getElementById(canvas_id).getElementsByTagName('canvas'),
                 config
             );
         }
 
     </script>
-</body>
-</html>
